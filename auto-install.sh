@@ -108,7 +108,16 @@ echo -e "🧠 =      NIM models     ="
 echo -e "🧠 ======================\n"
 
 if is_true "$INSTALL_NIM_MODELS"; then
-    # Copy and paste this block once per model. MODEL_NAME is the suffix of nim-model/values-<MODEL_NAME>.yaml
+    # Copy and paste a block per model. MODEL_NAME is the suffix of nim-model/values-<MODEL_NAME>.yaml
+
+    # Speech to text (live audio)
+    MODEL_NAME=nemotron-asr-streaming
+    echo -e "🚀 Trigger the ArgoCD application of the model $MODEL_NAME"
+    cat application-nim-model.yaml | \
+    MODEL_NAME=$MODEL_NAME NIM_NAMESPACE=$NIM_NAMESPACE \
+    envsubst | oc apply -f -
+
+    # Text to speech
     MODEL_NAME=magpie-tts-multilingual
     echo -e "🚀 Trigger the ArgoCD application of the model $MODEL_NAME"
     cat application-nim-model.yaml | \
