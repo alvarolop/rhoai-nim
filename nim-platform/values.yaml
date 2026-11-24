@@ -1,0 +1,24 @@
+# Namespace that exposes the NIM models. Every nim-model release deploys into it.
+namespace:
+  name: rhoai-nim-models
+
+# Account CR of the RHOAI NIM platform (nim.opendatahub.io/v1). It lives in the RHOAI applications namespace.
+# The controller validates the NGC key and creates, in that namespace, the NIM runtime Template, the config ConfigMap
+# and the image pull secret (see Account .status: runtimeTemplate, nimConfig, nimPullSecret).
+account:
+  name: odh-nim-account
+  namespace: redhat-ods-applications
+  # Secret with the NGC API key. Same name the RHOAI dashboard uses, so it can adopt it.
+  apiKeySecretName: nvidia-nim-secrets
+  validationRefreshRate: 24h
+  nimConfigRefreshRate: 24h
+
+# NGC API key. Never commit it: auto-install.sh reads it from the git-ignored file ngc-api-key.
+ngc:
+  apiKey: ""
+
+# NIM model IDs that the dashboard offers (ConfigMap nvidia-nim-enabled-models, linked in the Account modelListConfig).
+# Empty: all the models of the NGC catalog are offered.
+enabledModels: []
+# enabledModels:
+#   - llama-3.1-8b-instruct

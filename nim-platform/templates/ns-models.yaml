@@ -1,0 +1,14 @@
+---
+# Namespace that exposes the NIM models. Labels of a model namespace: RHOAI dashboard project and Kueue.
+# Its LocalQueues come from rhoai-gitops (distributedWorkloads.localQueueNamespaces must list this namespace).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespace.name }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+    openshift.io/display-name: RHOAI - NIM models
+    openshift.io/description: Models served with the NVIDIA NIM platform of OpenShift AI
+  labels:
+    opendatahub.io/dashboard: 'true'
+    kueue.openshift.io/managed: 'true'

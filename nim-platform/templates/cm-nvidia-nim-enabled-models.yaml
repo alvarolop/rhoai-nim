@@ -1,0 +1,14 @@
+{{- if .Values.enabledModels }}
+---
+# Models offered by the dashboard dropdown. Referenced by the Account spec.modelListConfig.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nvidia-nim-enabled-models
+  namespace: {{ .Values.account.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+data:
+  models: |-
+    {{ .Values.enabledModels | toJson }}
+{{- end }}

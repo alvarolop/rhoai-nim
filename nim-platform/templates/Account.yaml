@@ -1,0 +1,17 @@
+---
+apiVersion: nim.opendatahub.io/v1
+kind: Account
+metadata:
+  name: {{ .Values.account.name }}
+  namespace: {{ .Values.account.namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  apiKeySecret:
+    name: {{ .Values.account.apiKeySecretName }}
+  {{- if .Values.enabledModels }}
+  modelListConfig:
+    name: nvidia-nim-enabled-models
+  {{- end }}
+  validationRefreshRate: {{ .Values.account.validationRefreshRate }}
+  nimConfigRefreshRate: {{ .Values.account.nimConfigRefreshRate }}

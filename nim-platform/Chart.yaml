@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nim-platform
+description: Cluster-wide settings to serve NVIDIA NIM models with the RHOAI native NIM platform (Account, NGC secrets, models namespace)
+type: application
+version: 0.1.0
+appVersion: "3.5"
