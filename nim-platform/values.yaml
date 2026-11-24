@@ -1,8 +1,8 @@
-# Namespace that exposes the NIM models. Every nim-model release deploys into it.
+# Namespace that exposes the NIM models. It is NOT created here: rhoai-gitops owns it (labels, nim-support annotation, Kueue
+# LocalQueues and DRA claim templates). This chart only needs to know its name, so it must match the NIM namespace of
+# rhoai-gitops (nim.namespace). Here it receives the NGC secrets that the model runtimes read.
 namespace:
   name: rhoai-nim-models
-  displayName: RHOAI - NIM
-  description: Models served with the NVIDIA NIM platform of OpenShift AI
 
 # Account CR of the RHOAI NIM platform (nim.opendatahub.io/v1). It must live in the RHOAI applications namespace: the dashboard
 # only looks for the NIM account there ("NIM account does not exist" in the dashboard log, and NIM is not shown as enabled,

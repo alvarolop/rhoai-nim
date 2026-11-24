@@ -6,7 +6,7 @@ set -e
 # Set your environment variables here
 #####################################
 
-INSTALL_NIM_PLATFORM=true   # Account, NGC secrets and the models namespace (needs kserve.nim enabled in rhoai-gitops)
+INSTALL_NIM_PLATFORM=true   # Account and NGC secrets (needs the NIM namespace and kserve.nim from rhoai-gitops)
 INSTALL_NIM_MODELS=false    # Deploy the NIM models of the block "NIM models" below
 NIM_NAMESPACE=rhoai-nim-models
 ARGOCD_NAMESPACE=openshift-gitops
@@ -93,7 +93,13 @@ if is_true "$INSTALL_NIM_PLATFORM"; then
         exit 1
     fi
 
-    echo -e "🚀 Trigger the ArgoCD application of the NIM platform (Account, NGC secrets, namespace $NIM_NAMESPACE)"
+    # The namespace is owned by rhoai-gitops (nim.enabled), together with its Kueue queues and labels
+    if ! oc get namespace "$NIM_NAMESPACE" &> /dev/null; then
+        echo -e "❌ The namespace $NIM_NAMESPACE does not exist. Create it with rhoai-gitops (nim.enabled, nim.namespace) first."
+        exit 1
+    fi
+
+    echo -e "🚀 Trigger the ArgoCD application of the NIM platform (Account and NGC secrets, namespace $NIM_NAMESPACE)"
     cat application-nim-platform.yaml | \
     NIM_NAMESPACE=$NIM_NAMESPACE NGC_API_KEY=$NGC_API_KEY \
     envsubst | oc apply -f -

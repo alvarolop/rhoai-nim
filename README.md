@@ -55,6 +55,17 @@ NIM is a packaged product, while TensorRT-LLM and vLLM are inference engines. NI
 > [!NOTE]
 > The performance and licensing rows are general statements to be validated on our own cluster. TensorRT-LLM support in the llm-d shipped with RHOAI (as opposed to the community project) is to be confirmed before treating it as a deployment path.
 
+## Prerequisites
+
+The cluster side of NIM is owned by [rhoai-gitops](https://github.com/alvarolop/rhoai-gitops), like the namespaces of the other model repositories: it enables the NIM component of OpenShift AI and creates the models namespace, `rhoai-nim-models` by default, with its labels, the `opendatahub.io/nim-support` annotation, the Kueue LocalQueues and the DRA claim templates. This repository only needs its **name**, which must be the same in both: `namespace.name` in `nim-platform/values.yaml` and `NIM_NAMESPACE` in `auto-install.sh`. `auto-install.sh` stops if the namespace does not exist.
+
+What this repository creates:
+
+| Chart | What it creates |
+|---|---|
+| `nim-platform` | The NIM `Account` (in `redhat-ods-applications`, where the dashboard looks for it) and the NGC secrets |
+| `nim-model` | One model: `ServingRuntime`, `InferenceService` and the cache PVC |
+
 ## NGC API key
 
 The RHOAI `Account` CR needs an NVIDIA NGC API key to validate your access and to pull NIM images and models.
