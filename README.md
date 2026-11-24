@@ -66,6 +66,15 @@ What this repository creates:
 | `nim-platform` | The NIM `Account` (in `redhat-ods-applications`, where the dashboard looks for it) and the NGC secrets |
 | `nim-model` | One model: `ServingRuntime`, `InferenceService` and the cache PVC |
 
+### GPUs: DRA or device plugin
+
+Models request their GPU in one of two ways, selected per model with `dra.enabled` (default `true`) in `nim-model/values.yaml`:
+
+- **DRA:** the pod references a `ResourceClaimTemplate` of the models namespace (`dra.claimTemplate`, `gpu-m-x1` by default, an L4-class GPU). The templates are defined by rhoai-gitops (`06-dra`). The `nvidia.com/gpu` limit is removed and the HardwareProfile becomes `gpu-dra-profile`: with the plain `gpu-profile` the GPU would be counted twice.
+- **Device plugin:** `--set dra.enabled=false` requests `nvidia.com/gpu` and keeps `gpu-profile`.
+
+The Kueue queue does not need to be set: the chart writes the HardwareProfile annotation and the RHOAI admission adds the `queue-name` label from the profile. The chart only writes it when there is no profile annotation, and it always writes the priority class.
+
 ## NGC API key
 
 The RHOAI `Account` CR needs an NVIDIA NGC API key to validate your access and to pull NIM images and models.
