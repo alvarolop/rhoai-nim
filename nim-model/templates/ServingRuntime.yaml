@@ -1,0 +1,70 @@
+---
+# HOW to run the NIM container: image, ports, environment, cache volume, probes. The InferenceService refers to it by name.
+# We do not use the runtime Template that RHOAI generates: it is built for LLM NIMs (see docs/riva-based-inferencing.md).
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+metadata:
+  name: {{ required "name is required" .Values.name }}
+  namespace: {{ .Values.namespace.name }}
+  annotations:
+    opendatahub.io/recommended-accelerators: '["nvidia.com/gpu"]'
+    openshift.io/display-name: NVIDIA NIM {{ .Values.name }}
+    {{- if .Values.dashboardNim }}
+    runtimes.opendatahub.io/nvidia-nim: "true"
+    {{- end }}
+  labels:
+    opendatahub.io/dashboard: "true"
+spec:
+  multiModel: false
+  supportedModelFormats:
+    - name: {{ required "modelFormat is required" .Values.modelFormat }}
+      autoSelect: true
+  imagePullSecrets:
+    - name: ngc-secret
+  containers:
+    - name: kserve-container
+      image: {{ required "image.repository is required" .Values.image.repository }}:{{ required "image.tag is required" .Values.image.tag }}
+      env:
+        - name: NGC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: nvidia-nim-secrets
+              key: NGC_API_KEY
+        - name: NIM_HTTP_API_PORT
+          value: {{ .Values.ports.http | quote }}
+        - name: NIM_GRPC_API_PORT
+          value: {{ .Values.ports.grpc | quote }}
+        {{- with .Values.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      ports:
+        - name: http
+          containerPort: {{ .Values.ports.http }}
+          protocol: TCP
+        - name: grpc
+          containerPort: {{ .Values.ports.grpc }}
+          protocol: TCP
+      readinessProbe:
+        httpGet:
+          path: /v1/health/ready
+          port: {{ .Values.ports.http }}
+        periodSeconds: 10
+      startupProbe:
+        httpGet:
+          path: /v1/health/ready
+          port: {{ .Values.ports.http }}
+        periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+        failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+      volumeMounts:
+        - name: shm
+          mountPath: /dev/shm
+        - name: cache
+          mountPath: {{ .Values.cache.mountPath }}
+  volumes:
+    - name: shm
+      emptyDir:
+        medium: Memory
+        sizeLimit: {{ .Values.shm.size }}
+    - name: cache
+      persistentVolumeClaim:
+        claimName: {{ .Values.name }}-cache

@@ -1,0 +1,16 @@
+---
+# Model cache of the NIM: the model is downloaded once and reused on every restart.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ required "name is required" .Values.name }}-cache
+  namespace: {{ .Values.namespace.name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.cache.size }}
+  {{- if .Values.cache.storageClassName }}
+  storageClassName: {{ .Values.cache.storageClassName }}
+  {{- end }}

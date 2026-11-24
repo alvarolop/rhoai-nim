@@ -1,0 +1,11 @@
+# Magpie TTS Multilingual 357M: text to speech for the voice agent (12 languages).
+name: magpie-tts-multilingual
+modelFormat: magpie-tts-multilingual
+
+image:
+  repository: nvcr.io/nim/nvidia/magpie-tts-multilingual
+  tag: "1.10.1"
+
+env:
+  - name: NIM_TAGS_SELECTOR
+    value: "name=magpie-tts-multilingual"

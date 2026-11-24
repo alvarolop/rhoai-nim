@@ -1,4 +1,64 @@
-# Defaults for one NIM model. Each model adds a values-<model>.yaml on top.
-# The templates are added after inspecting what the RHOAI dashboard generates for a NIM on the cluster.
+# Defaults for ONE NIM model. Each model adds a values-<model>.yaml on top (see values-magpie-tts-multilingual.yaml).
+# Written for the speech NIMs (Riva based, see docs/riva-based-inferencing.md): two ports, model chosen with NIM_TAGS_SELECTOR.
+
+# Name of the model. It names the ServingRuntime, the InferenceService and the cache PVC.
+name: ""
+
+# Namespace of the models. It is created by the nim-platform chart, together with the NGC secrets.
 namespace:
   name: rhoai-nim-models
+
+# NIM container image from the NGC catalog (the pull secret ngc-secret comes from nim-platform).
+image:
+  repository: ""
+  tag: ""
+
+# Model format that the InferenceService asks for and the ServingRuntime supports. Usually the same as name.
+modelFormat: ""
+
+# Ports of the speech NIMs. KServe sends the traffic to the FIRST port, so http goes first.
+ports:
+  http: 9000
+  grpc: 50051
+
+# Environment of the NIM container (NGC_API_KEY and the two ports are always added by the template).
+# NIM_TAGS_SELECTOR chooses the model and its profile, for example "name=magpie-tts-multilingual,batch_size=8".
+env: []
+
+# Model cache. The NIM downloads the model on its first start (up to 30 minutes) and, with a PVC, reuses it afterwards.
+cache:
+  size: 30Gi
+  storageClassName: ""   # empty: the default StorageClass
+  mountPath: /opt/nim/.cache
+
+# Shared memory of the NIM (docker --shm-size=8GB).
+shm:
+  size: 8Gi
+
+# One GPU through the device plugin. DRA and Kueue come later (the namespace has no queues yet).
+resources:
+  requests:
+    cpu: "2"
+    memory: 8Gi
+    nvidia.com/gpu: "1"
+  limits:
+    cpu: "4"
+    memory: 16Gi
+    nvidia.com/gpu: "1"
+
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule
+
+# Time that the NIM may take to become ready (first start downloads the model): failureThreshold x periodSeconds.
+startupProbe:
+  failureThreshold: 180
+  periodSeconds: 10
+
+# Let the RHOAI dashboard show the runtime as a NIM runtime (runtimes.opendatahub.io/nvidia-nim annotation).
+dashboardNim: true
+
+# Token authentication in front of the model (kube-rbac-proxy). Off: the voice agent calls it from inside the cluster.
+auth:
+  enabled: false
