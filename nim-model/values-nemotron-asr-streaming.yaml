@@ -1,0 +1,18 @@
+# Nemotron 3.5 ASR Streaming 0.6B: speech to text for LIVE audio (streaming only). Used by the voice agent.
+# For offline transcription there is another NIM (nemotron-transcribe), see docs/riva-based-inferencing.md.
+name: nemotron-asr-streaming
+modelFormat: nemotron-asr-streaming
+
+image:
+  repository: nvcr.io/nim/nvidia/nemotron-asr-streaming
+  tag: "1.5"
+
+env:
+  # type=multi: multilingual model (40 locales, language detection with "auto"). type=en-US: English only.
+  # The default profile uses batch_size=128 (32 and 512 exist too). Append it here to change it, for example
+  # "name=nemotron-asr-streaming,type=multi,batch_size=32".
+  - name: NIM_TAGS_SELECTOR
+    value: "name=nemotron-asr-streaming,type=multi"
+
+cache:
+  size: 20Gi
