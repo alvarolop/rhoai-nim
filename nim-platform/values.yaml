@@ -4,12 +4,11 @@ namespace:
   displayName: RHOAI - NIM
   description: Models served with the NVIDIA NIM platform of OpenShift AI
 
-# Account CR of the RHOAI NIM platform (nim.opendatahub.io/v1). It lives in the RHOAI applications namespace.
-# The controller validates the NGC key and creates, in that namespace, the NIM runtime Template, the config ConfigMap
-# and the image pull secret (see Account .status: runtimeTemplate, nimConfig, nimPullSecret).
+# Account CR of the RHOAI NIM platform (nim.opendatahub.io/v1). Everything lives in the models namespace above: the Account,
+# the NGC secrets and what the controller creates from it (NIM runtime Template, config ConfigMap and image pull secret,
+# see the Account .status: runtimeTemplate, nimConfig, nimPullSecret).
 account:
   name: odh-nim-account
-  namespace: redhat-ods-applications
   # Secret with the NGC API key. Same name the RHOAI dashboard uses, so it can adopt it.
   apiKeySecretName: nvidia-nim-secrets
   validationRefreshRate: 24h

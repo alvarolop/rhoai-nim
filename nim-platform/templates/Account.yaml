@@ -3,7 +3,7 @@ apiVersion: nim.opendatahub.io/v1
 kind: Account
 metadata:
   name: {{ .Values.account.name }}
-  namespace: {{ .Values.account.namespace }}
+  namespace: {{ .Values.namespace.name }}
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
