@@ -6,6 +6,25 @@ Deploy models with the **NVIDIA NIM** inference server on **Red Hat OpenShift AI
 
 This repository is the NIM companion of [rhoai-serving](https://github.com/alvarolop/rhoai-serving) (vLLM deployments). Cluster infrastructure (GPU operators, Kueue, DRA, the RHOAI installation itself) lives in [rhoai-gitops](https://github.com/alvarolop/rhoai-gitops). Enabling NIM in the cluster (for example the NGC credentials) is considered a platform task and is out of scope here, unless stated otherwise.
 
+## Use case: Nemotron voice agent
+
+The models deployed from this repository are the building blocks of the [Nemotron Voice Agent](https://github.com/NVIDIA-AI-Blueprints/nemotron-voice-agent) NVIDIA blueprint: a real-time voice assistant that you talk to from the browser. The blueprint is a cascaded streaming pipeline, orchestrated by [Pipecat](https://github.com/pipecat-ai/pipecat) and reached over WebRTC. Each stage is an independent model server, so each one is a model deployment of this repository:
+
+```
+ microphone ──▶ ASR (speech to text) ──▶ LLM (understands and answers) ──▶ TTS (text to speech) ──▶ speaker
+                                  (Pipecat orchestrates the three, with VAD and turn-taking)
+```
+
+| Stage | Model | Purpose | NIM image in the NGC catalog |
+|---|---|---|---|
+| **ASR** | [nemotron-3.5-asr-streaming-0.6b](https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b) | Turns the user's speech into text while they are still talking (cache-aware streaming, 80 ms to 1.12 s chunks, 40 locales) | `nvcr.io/nim/nvidia/nemotron-asr-streaming` (live audio; `nemotron-transcribe` is for offline use) |
+| **LLM** | Out of scope: the reasoning model is not deployed in this cluster | The "brain": understands the text and writes the answer. The blueprint accepts any OpenAI-compatible endpoint, so it is provided from outside | None |
+| **TTS** | [magpie_tts_multilingual_357m](https://huggingface.co/nvidia/magpie_tts_multilingual_357m) | Speaks the answer with a natural voice (12 languages, 5 English voices) | `nvcr.io/nim/nvidia/magpie-tts-multilingual` |
+| *Optional* | [Nemotron-3-Diarization](https://huggingface.co/nvidia/Nemotron-3-Diarization) | Answers "who spoke when" (up to 8 speakers). It does not transcribe: it only adds speaker labels next to the ASR. It is not a stage of the default pipeline, only needed for multi-speaker conversations | None in the catalog of our cluster |
+
+> [!NOTE]
+> The speech models are Riva-based NIMs, GPU only, and they do not fit the generic runtime that RHOAI generates for LLM NIMs. See [docs/riva-based-inferencing.md](docs/riva-based-inferencing.md).
+
 ## Deployment options
 
 There are three ways to run NIM on OpenShift, plus vLLM as the non-NIM reference. This repository explores them in order, starting with the one supported by RHOAI.
