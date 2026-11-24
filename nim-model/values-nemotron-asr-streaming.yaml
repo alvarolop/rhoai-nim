@@ -13,6 +13,12 @@ env:
   # "name=nemotron-asr-streaming,type=multi,batch_size=32".
   - name: NIM_TAGS_SELECTOR
     value: "name=nemotron-asr-streaming,type=multi"
+  # There is no prebuilt engine for the L4 (only L40S, H100, A100, GB10), so by default the NIM compiles an INT8 engine
+  # on the first start, which ran out of memory. This is the prebuilt L40S profile (batch_size=32, multilingual): the L40S
+  # and the L4 are both compute capability 8.9 and the NIM lists it as compatible. Find the ids with
+  # `list-model-profiles` inside the container. Remove this variable to go back to the engine build.
+  - name: NIM_MODEL_PROFILE
+    value: "c64e666e9c9ab385639b7022d5d076da21f8c4d1309427390cad144e10b1647a"
 
 cache:
   size: 20Gi
