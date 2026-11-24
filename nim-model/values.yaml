@@ -31,6 +31,12 @@ cache:
   storageClassName: ""   # empty: the default StorageClass
   mountPath: /opt/nim/.cache
 
+# Scratch directory of the NIM. It is in the image, owned by root, and OpenShift runs the pod with a random non-root user, so it
+# must be a writable volume. It is rebuilt on each start from the cache, so an emptyDir is enough.
+workspace:
+  mountPath: /opt/nim/workspace
+  size: 20Gi
+
 # Shared memory of the NIM (docker --shm-size=8GB).
 shm:
   size: 8Gi

@@ -60,11 +60,16 @@ spec:
           mountPath: /dev/shm
         - name: cache
           mountPath: {{ .Values.cache.mountPath }}
+        - name: workspace
+          mountPath: {{ .Values.workspace.mountPath }}
   volumes:
     - name: shm
       emptyDir:
         medium: Memory
         sizeLimit: {{ .Values.shm.size }}
+    - name: workspace
+      emptyDir:
+        sizeLimit: {{ .Values.workspace.size }}
     - name: cache
       persistentVolumeClaim:
         claimName: {{ .Values.name }}-cache
