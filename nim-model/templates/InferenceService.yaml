@@ -10,10 +10,25 @@ metadata:
     serving.kserve.io/deploymentMode: RawDeployment
     security.opendatahub.io/enable-auth: {{ .Values.auth.enabled | quote }}
     openshift.io/display-name: {{ .Values.name }}
+    {{- if eq (include "nim-model.hasHardwareProfile" . | trim) "true" }}
+    opendatahub.io/hardware-profile-name: {{ include "nim-model.hardwareProfileName" . | quote }}
+    opendatahub.io/hardware-profile-namespace: {{ .Values.hardwareProfile.namespace | quote }}
+    {{- end }}
   labels:
     opendatahub.io/dashboard: "true"
+    {{- if ne (include "nim-model.hasHardwareProfile" . | trim) "true" }}
+    kueue.x-k8s.io/queue-name: {{ include "nim-model.kueueLocalQueue" . | quote }}
+    {{- end }}
+    {{- with include "nim-model.kueuePriorityClass" . | trim }}
+    kueue.x-k8s.io/priority-class: {{ . | quote }}
+    {{- end }}
 spec:
   predictor:
+    {{- if eq (include "nim-model.useDra" . | trim) "true" }}
+    resourceClaims:
+      - name: {{ include "nim-model.draClaimName" . }}
+        resourceClaimTemplateName: {{ include "nim-model.draClaimTemplateName" . }}
+    {{- end }}
     minReplicas: 1
     maxReplicas: 1
     model:
@@ -21,7 +36,7 @@ spec:
         name: {{ .Values.modelFormat }}
       runtime: {{ .Values.name }}
       resources:
-        {{- toYaml .Values.resources | nindent 8 }}
+        {{- include "nim-model.resources" . | nindent 8 }}
     {{- with .Values.tolerations }}
     tolerations:
       {{- toYaml . | nindent 6 }}

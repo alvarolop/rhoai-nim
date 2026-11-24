@@ -35,7 +35,7 @@ cache:
 shm:
   size: 8Gi
 
-# One GPU through the device plugin. DRA and Kueue come later (the namespace has no queues yet).
+# Container resources. nvidia.com/gpu is the device-plugin request: with dra.enabled it is removed and replaced by the claim.
 resources:
   requests:
     cpu: "2"
@@ -45,6 +45,21 @@ resources:
     cpu: "4"
     memory: 16Gi
     nvidia.com/gpu: "1"
+
+# HardwareProfile of the model. The RHOAI admission reads it from the annotation and adds the Kueue queue label itself
+# (gpu-profile / gpu-dra-profile -> serving-lq, gpu-batch-profile / gpu-dra-batch-profile -> batch-lq).
+hardwareProfile:
+  name: gpu-profile
+  namespace: redhat-ods-applications
+
+# GPU through Dynamic Resource Allocation (DRA, true) or through the NVIDIA device plugin (false: nvidia.com/gpu limits).
+# The ResourceClaimTemplates are defined by the platform (rhoai-gitops 06-dra), not by this chart.
+dra:
+  enabled: true
+  # ResourceClaimTemplate of the models namespace: gpu-s-x1 (small), gpu-m-x1 (L4 class), gpu-l-x1 (1x H100), gpu-xl-x1, gpu-xl-x2.
+  claimTemplate: gpu-m-x1
+  # Profile used instead of gpu-profile when DRA is on: it has no nvidia.com/gpu identifier (the GPU would be counted twice).
+  hardwareProfile: gpu-dra-profile
 
 tolerations:
   - key: nvidia.com/gpu
