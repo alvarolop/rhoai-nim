@@ -7,8 +7,8 @@ metadata:
   name: {{ .Values.namespace.name }}
   annotations:
     argocd.argoproj.io/sync-wave: "-2"
-    openshift.io/display-name: RHOAI - NIM models
-    openshift.io/description: Models served with the NVIDIA NIM platform of OpenShift AI
+    openshift.io/display-name: {{ .Values.namespace.displayName | quote }}
+    openshift.io/description: {{ .Values.namespace.description | quote }}
   labels:
     opendatahub.io/dashboard: 'true'
     kueue.openshift.io/managed: 'true'
