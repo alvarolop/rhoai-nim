@@ -115,17 +115,18 @@ echo -e "🧠 ======================\n"
 
 if is_true "$INSTALL_NIM_MODELS"; then
     # Copy and paste a block per model. MODEL_NAME is the suffix of nim-model/values-<MODEL_NAME>.yaml
-    # Each model asks for one GPU: with a single GPU node, deploy them one at a time (smallest first).
+    # Each model asks for one GPU: with a single GPU node, deploy them one at a time.
 
-    # Text to speech (Magpie TTS Multilingual, 357M parameters: the smallest one, start here)
-    MODEL_NAME=magpie-tts-multilingual
+    # Speech to text, live audio (Nemotron ASR Streaming, 0.6B parameters). Its weights are public in NGC.
+    MODEL_NAME=nemotron-asr-streaming
     echo -e "🚀 Trigger the ArgoCD application of the model $MODEL_NAME"
     cat application-nim-model.yaml | \
     MODEL_NAME=$MODEL_NAME NIM_NAMESPACE=$NIM_NAMESPACE \
     envsubst | oc apply -f -
 
-    # Speech to text, live audio (Nemotron ASR Streaming, 0.6B parameters). Uncomment when a second GPU is free.
-    # MODEL_NAME=nemotron-asr-streaming
+    # Text to speech (Magpie TTS Multilingual, 357M parameters). Its weights need the nim-dev or nv-ai-enterprise
+    # entitlement on the NGC org: without it the NIM fails with HTTP 402. Needs a free GPU as well.
+    # MODEL_NAME=magpie-tts-multilingual
     # echo -e "🚀 Trigger the ArgoCD application of the model $MODEL_NAME"
     # cat application-nim-model.yaml | \
     # MODEL_NAME=$MODEL_NAME NIM_NAMESPACE=$NIM_NAMESPACE \
