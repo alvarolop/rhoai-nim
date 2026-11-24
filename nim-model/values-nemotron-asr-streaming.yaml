@@ -16,3 +16,11 @@ env:
 
 cache:
   size: 20Gi
+
+# The first start builds a TensorRT engine for the GPU, which peaks above the 16Gi default (OOMKilled, exit 137).
+# The 8Gi shared memory volume counts against the limit too.
+resources:
+  requests:
+    memory: 12Gi
+  limits:
+    memory: 24Gi
