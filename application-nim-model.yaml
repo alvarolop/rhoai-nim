@@ -1,0 +1,30 @@
+---
+# One Application per model. Variables: MODEL_NAME (name of nim-model/values-<MODEL_NAME>.yaml) and NIM_NAMESPACE.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  labels:
+    app: nim-$MODEL_NAME
+  name: nim-$MODEL_NAME
+  namespace: openshift-gitops
+spec:
+  destination:
+    server: 'https://kubernetes.default.svc'
+  project: default
+  source:
+    repoURL: https://github.com/alvarolop/rhoai-nim.git
+    targetRevision: main
+    path: nim-model
+    helm:
+      releaseName: $MODEL_NAME
+      valueFiles:
+        - values.yaml
+        - values-$MODEL_NAME.yaml
+      values: |
+        namespace:
+          name: "$NIM_NAMESPACE"
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: false
+    syncOptions: []
