@@ -109,7 +109,7 @@ echo -e "🧠 ======================\n"
 
 if is_true "$INSTALL_NIM_MODELS"; then
     # Copy and paste this block once per model. MODEL_NAME is the suffix of nim-model/values-<MODEL_NAME>.yaml
-    MODEL_NAME=changeme
+    MODEL_NAME=magpie-tts-multilingual
     echo -e "🚀 Trigger the ArgoCD application of the model $MODEL_NAME"
     cat application-nim-model.yaml | \
     MODEL_NAME=$MODEL_NAME NIM_NAMESPACE=$NIM_NAMESPACE \
