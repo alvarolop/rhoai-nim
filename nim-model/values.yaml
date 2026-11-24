@@ -1,0 +1,4 @@
+# Defaults for one NIM model. Each model adds a values-<model>.yaml on top.
+# The templates are added after inspecting what the RHOAI dashboard generates for a NIM on the cluster.
+namespace:
+  name: rhoai-nim-models

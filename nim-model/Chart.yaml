@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nim-model
+description: One NVIDIA NIM model served with the RHOAI native NIM platform (ServingRuntime, InferenceService, cache PVC)
+type: application
+version: 0.1.0
+appVersion: "3.5"
