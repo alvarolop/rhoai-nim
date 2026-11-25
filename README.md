@@ -17,9 +17,9 @@ The models deployed from this repository are the building blocks of the [Nemotro
 
 | Stage | Model | Purpose | NIM image in the NGC catalog |
 |---|---|---|---|
-| **ASR** | [nemotron-3.5-asr-streaming-0.6b](https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b) | Turns the user's speech into text while they are still talking (cache-aware streaming, 80 ms to 1.12 s chunks, 40 locales) | `nvcr.io/nim/nvidia/nemotron-asr-streaming` (live audio; `nemotron-transcribe` is for offline use) |
+| **ASR** | [nemotron-3.5-asr-streaming-0.6b](https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b) | Turns the user's speech into text while they are still talking (cache-aware streaming, 80 ms to 1.12 s chunks, 40 locales) | [`nvcr.io/nim/nvidia/nemotron-asr-streaming`](https://catalog.ngc.nvidia.com/orgs/nim/nvidia/containers/nemotron-asr-streaming) (live audio; `nemotron-transcribe` is for offline use) |
 | **LLM** | Out of scope: the reasoning model is not deployed in this cluster | The "brain": understands the text and writes the answer. The blueprint accepts any OpenAI-compatible endpoint, so it is provided from outside | None |
-| **TTS** | [magpie_tts_multilingual_357m](https://huggingface.co/nvidia/magpie_tts_multilingual_357m) | Speaks the answer with a natural voice (12 languages, 5 English voices) | `nvcr.io/nim/nvidia/magpie-tts-multilingual` |
+| **TTS** | [magpie_tts_multilingual_357m](https://huggingface.co/nvidia/magpie_tts_multilingual_357m) | Speaks the answer with a natural voice (12 languages, 5 English voices) | [`nvcr.io/nim/nvidia/magpie-tts-multilingual`](https://catalog.ngc.nvidia.com/orgs/nim/nvidia/containers/magpie-tts-multilingual) |
 | *Optional* | [Nemotron-3-Diarization](https://huggingface.co/nvidia/Nemotron-3-Diarization) | Answers "who spoke when" (up to 8 speakers). It does not transcribe: it only adds speaker labels next to the ASR. It is not a stage of the default pipeline, only needed for multi-speaker conversations | None in the catalog of our cluster |
 
 > [!NOTE]

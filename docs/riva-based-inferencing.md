@@ -27,6 +27,27 @@ The runtime Template cannot be used as is: it exposes the wrong port and has no 
 - **Long first start.** The first startup downloads the model and may build a TensorRT engine for the GPU: it can take **up to 30 minutes**. The probes need generous `startupProbe` settings, and the cache must be a PVC so that the next starts are fast.
 - **ASR: streaming, not transcribe.** The catalog has two ASR images. `nemotron-asr-streaming` is for **live audio** and supports streaming mode only: it is the one the voice agent needs. `nemotron-transcribe` is for offline transcription, serves only an HTTP OpenAI-compatible API and does not use Triton.
 
+## Engine profiles and the GPU
+
+A speech NIM serves a TensorRT engine, and an engine is built for a GPU. The NIM image carries a manifest of **profiles**, and on start it picks the one that matches the GPU (or the one you force with `NIM_MODEL_PROFILE`). There are two kinds:
+
+| Profile kind | What the NIM does | Start |
+|---|---|---|
+| **Prebuilt** (`model_type:prebuilt`, tagged with a GPU such as `NVIDIA-L40S`) | Downloads the finished engine from NGC | Fast: minutes, mostly download time |
+| **`rmir`** (generic, no GPU in the tags) | Downloads the model and **compiles the engine on the GPU** (ONNX export, INT8 quantization, TensorRT build) | Slow, and it needs a lot of memory |
+
+The `nemotron-asr-streaming` 1.5 manifest has prebuilt profiles for **L40S, A100, H100 and GB10** (and DGX Spark). **There is none for the L4.** List them with `list-model-profiles` inside the container: it shows the profiles compatible with the GPU of the node and the ones that are not.
+
+What we saw on the L4 of this cluster:
+
+- With the default selector the NIM chose the generic `rmir` profile (`batch_size=128`, `precision=int8`, `type=multi`) and compiled the engine. At the 16Gi memory limit it was **OOMKilled** (exit 137), and at 24Gi it was OOMKilled again during the INT8 quantization step. Each OOM restart began the build again, because the output goes to `/data/models`, which is not on a volume.
+- The NIM lists the prebuilt **L40S** profiles as *compatible with system* on the L4, because both GPUs are compute capability 8.9 (Ada). Forcing one with `NIM_MODEL_PROFILE` skipped the build, and the pod went Ready in about 4 minutes.
+
+`nim-model/values-nemotron-asr-streaming.yaml` sets `NIM_MODEL_PROFILE` to the prebuilt L40S profile (`batch_size=32`, multilingual). Remove the variable to go back to the engine build.
+
+> [!NOTE]
+> Not verified: whether NVIDIA supports an L40S engine on an L4 (it is a compatibility match, not a certified one), whether it transcribes with the same quality, and whether a GPU with its own prebuilt profile selects it automatically. We only ran the NIM on the L4. Whether later restarts re-unpack files into `/data/models` is open too.
+
 ## CPU or GPU?
 
 **GPU only, through NIM.** The Speech NIM documentation describes the containers as GPU-accelerated (CUDA, TensorRT, Triton), and every `docker run` example uses `--runtime=nvidia --gpus`. No page mentions CPU support.
@@ -49,5 +70,7 @@ Requirements found in a web search of the NVIDIA documentation, to be confirmed 
 - [NVIDIA Speech NIM overview](https://docs.nvidia.com/nim/riva/tts/latest/getting-started.html)
 - [Nemotron ASR Streaming deployment](https://docs.nvidia.com/nim/speech/latest/asr/deploy-asr-models/nemotron-asr-streaming.html)
 - [Deploy and run the TTS NIM](https://docs.nvidia.com/nim/speech/26.02.0/tts/deploy-tts-model.html)
+- [Magpie TTS Multilingual in the NGC catalog](https://catalog.ngc.nvidia.com/orgs/nim/nvidia/containers/magpie-tts-multilingual)
+- [Nemotron ASR Streaming in the NGC catalog](https://catalog.ngc.nvidia.com/orgs/nim/nvidia/containers/nemotron-asr-streaming)
 - [Magpie TTS Multilingual 357M model card](https://huggingface.co/nvidia/magpie_tts_multilingual_357m)
 - [Nemotron 3.5 ASR Streaming model card](https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b)
