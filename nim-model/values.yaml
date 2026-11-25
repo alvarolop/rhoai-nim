@@ -80,6 +80,12 @@ startupProbe:
 # Let the RHOAI dashboard show the runtime as a NIM runtime (runtimes.opendatahub.io/nvidia-nim annotation).
 dashboardNim: true
 
+# OpenShift Route to the HTTP port of the NIM (port 9000: health and the WebSocket Realtime API, not gRPC). Off: the voice agent
+# calls the Service from inside the cluster. CAUTION: with auth.enabled=false anyone with the URL can use the model and the GPU.
+route:
+  enabled: false
+  timeout: 1h   # router timeout, for the long WebSocket sessions
+
 # Token authentication in front of the model (kube-rbac-proxy). Off: the voice agent calls it from inside the cluster.
 auth:
   enabled: false

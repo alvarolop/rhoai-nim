@@ -1,0 +1,26 @@
+{{- if .Values.route.enabled }}
+---
+# OPTIONAL: exposes the HTTP port of the NIM (health and the WebSocket Realtime API) outside the cluster, with TLS at the router.
+# gRPC (50051) is not exposed: it would need an HTTP/2 route. The NIM has no authentication of its own, see route.enabled.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace.name }}
+  annotations:
+    # Realtime streaming sessions are long lived WebSockets: the default router timeout is 30s.
+    haproxy.router.openshift.io/timeout: {{ .Values.route.timeout | quote }}
+  labels:
+    app: {{ .Values.name }}
+spec:
+  to:
+    kind: Service
+    name: {{ .Values.name }}-predictor
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
+{{- end }}
