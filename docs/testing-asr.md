@@ -68,6 +68,8 @@ Available ASR models
 
 The model list shows the 40 locales plus `auto` (language detection) served by one model. The sentence is the content of the sample WAV, so the model works.
 
+The full logs of the deploy (`auto-install.sh`) and of the test runs are in [testing-asr-logs.md](testing-asr-logs.md).
+
 ### Language
 
 The deployed profile is `type=multi` (multilingual, see `nim-model/values-nemotron-asr-streaming.yaml`). With no `LANGUAGE_CODE` the model **detects the language** by itself. To force one, for example `LANGUAGE_CODE=fr-FR ./test-asr.sh fr.wav`. With the English profile (`type=en-US`) you must pass `en-US`.
